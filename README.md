@@ -9,6 +9,9 @@ Next in prisma orm schema, create the fileds. examples:
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+
+``````````````````````````````````````````````````````````````````
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -39,6 +42,9 @@ model Message{
   sender User @relation(name:"sender", fields: [senderId], references: [id])
   createdAt DateTime @default(now())
 }
+
+
+``````````````````````````````````````````````````````````````````
 
 #npm start to Start the project
 
