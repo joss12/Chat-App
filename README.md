@@ -1,169 +1,46 @@
-const {ApolloServer, gql} = require ('apollo-server');
-const crypto = require('crypto');
+#This is a Backend Chat App built with nodejs-graphQl-mysql-prisma orm
+
+# NPM install for install all the dependencies
+Create a database in mysql and give it a name of your choice and connect it in the path set in the .env.
+
+Next in prisma orm schema, create the fileds. examples:
 
 
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-const users = [
-    {
-        id:"grfgkkfsdg",
-        firstName:"Eddy",
-        lastName: "Mouity",
-        email: "eddy@email.com",
-        password: '123456'
-    },
-    {
-        id: "dgsgsgvwarg",
-        firstName:"Joss",
-        lastName: "Mouity",
-        email: "joss@email.com",
-        password: '123456789'
-    }
-]
+generator client {
+  provider = "prisma-client-js"
+}
 
-const Todos = [
-    {
-        title: "Buy a book",
-        by:"grfgkkfsdg"
-    },
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
 
-    {
-        title: "druck coffe",
-        by: "dgsgsgvwarg"
-    },
-    {
-        title:"eat a bread",
-        by: "dgsgsgvwarg"
-    }
-]
-
-const typeDefs = gql `
-    type Query{
-        users:[User]
-        user(id:ID!):User
-    },
-
-    input UserInput{
-            firstName:String!
-            lastName:String!
-            email:String!
-            password:String!
-    },
-
-    type Mutation{
-        createUser(userNew:UserInput!):User
-    },
-
-    type User{
-        id:ID!
-        firstName: String
-        lastName: String
-        email: String,
-        todos:[Todo]
-    },
-     type Todo{
-         title: String!
-         by: ID!
-     }
-`
-
-const resolvers = {
-    Query:{
-        users:()=>users,
-        user:(_, {id}, {userLoggedIn})=>{
-            if(!userLoggedIn) throw new Error('You are not loggedIn')
-            return users.find(item=>item.id == id)
-        }
-    },
-    User:{
-        todos:(parent)=>{
-            return Todos.filter(todo=>todo.by == parent.id)
-        }
-    },
-
-    Mutation:{
-        createUser:(_, {userNew})=>{
-            const newUser = {
-                id:crypto.randomUUID(),
-                ...userNew
-            }
-            users.push(newUser);
-            return newUser
-        }
-    }
+model User{
+  id Int @id @default(autoincrement())
+  firstName String
+  lastName String
+  email String @unique
+  password String
+  createdAt DateTime @default(now())
+  receiver Message[] @relation(name:"reciever")
+  sender Message[] @relation(name: "sender")
 }
 
 
-
-
-const server = new ApolloServer({
-    typeDefs, 
-    resolvers, 
-    context:{
-        userLoggedIn: true
-    }
-});
-
-server.listen().then(({url})=>{
-    console.log(`Server ready at ${url}`);
-});
-
-
-`````````````````
-ON graphQl playground
-###getAllUsers
-query getAllUsers{
-  users{
-    id
-    firstName
-    lastName
-    email
-  }
-};
-``````````````````
-###getUserById
-fragment userFields on User{
-  id
-  firstName
-  lastName
-  email
-}
-query getUserById($uId1: ID!, $uId2: ID!) {
-  u1:user(id: $uId1){
-    ...userFields
-  }
-  u2:user(id: $uId2){
-    ...userFields
-  }
-}
--------------------------------
-Variables
-{
-  "uId1":"grfgkkfsdg",
-  "uId2":"dgsgsgvwarg"
-  
+model Message{
+  id Int @id @default(autoincrement())
+  text String
+  receiverId Int
+  receiver User @relation(name:"reciever", fields: [receiverId], references: [id])
+  senderId Int
+  sender User @relation(name:"sender", fields: [senderId], references: [id])
+  createdAt DateTime @default(now())
 }
 
-`````````````````````
-###CreateUser
-mutation CreateUser($userNew: UserInput!) {
-  user:createUser(userNew: $userNew) {
-    id
-    firstName
-    lastName
-    email
-  }
-}
----------------------------------
-Variables
-{
-  "userNew":{
-    "firstName": "Joss",
-    "lastName": "Mouity",
-    "email": "axel@email.com",
-    "password": "123456"
-  }
-}
+#npm start to Start the project
 
-
-
-
+#To lunch Prisma studio
+npx prisma studio. This will view your database
