@@ -6,11 +6,11 @@ Create a database in mysql and give it a name of your choice and connect it in t
 Next in prisma orm schema, create the fileds. examples:
 
 
+``````````````````````````````````````````````````````````````````
+
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-
-``````````````````````````````````````````````````````````````````
 
 generator client {
   provider = "prisma-client-js"
